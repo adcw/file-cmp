@@ -2,6 +2,7 @@ import dash_mantine_components as dmc
 import pandas as pd
 from dash import dcc, html, dash_table
 
+from app.components.FilePreviews import FilePreviews
 from app.utils import similarity_to_color
 
 df = pd.DataFrame({
@@ -29,7 +30,7 @@ style_conditions = [
     for sim in df["Similarity"]
 ]
 
-def app_shell():
+def AppShell():
     return dmc.AppShell(
         padding=0,
         children=[
@@ -80,44 +81,8 @@ def app_shell():
                                 style_data_conditional=style_conditions,
                             )
                         ),
-                        dmc.Group(
-                            p="sm",
-                            grow=True,
 
-                            style={"borderTop": "1px solid #ddd", "marginTop": "auto"},
-                            h="700px",
-                            mah="50%",
-                            children=[
-
-                                dcc.Textarea(
-                                    value="Sample text",
-                                    style={
-                                        "width": "50%",
-                                        "height": "100%",
-                                        "padding": "10px",
-                                        "resize": "none",
-                                        "border": "1px solid #ddd",
-                                        "backgroundColor": "#f8f9fa",
-                                        "fontFamily": "monospace"
-                                    },
-                                    readOnly=True
-                                ),
-
-                                dcc.Textarea(
-                                    value="Sample text",
-                                    style={
-                                        "width": "50%",
-                                        "height": "100%",
-                                        "padding": "10px",
-                                        "resize": "none",
-                                        "border": "1px solid #ddd",
-                                        "backgroundColor": "#f8f9fa",
-                                        "fontFamily": "monospace"
-                                    },
-                                    readOnly=True
-                                ),
-                            ]
-                        ),
+                        *FilePreviews()
                     ]
                 )
             ),
