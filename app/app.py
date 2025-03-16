@@ -1,12 +1,16 @@
-from dash import Dash
-from .layout import create_layout
-from .callbacks import register_callbacks
+import dash_mantine_components as dmc
+from dash import Dash, _dash_renderer
+
+from app.components.AppShell import app_shell
+
+_dash_renderer._set_react_version("18.2.0")
 
 
 def get():
-    app = Dash(__name__)
-    app.layout = create_layout()
+    app = Dash(external_stylesheets=dmc.styles.ALL)
 
-    register_callbacks(app)
+    app.layout = dmc.MantineProvider(
+        app_shell()
+    )
 
     return app
