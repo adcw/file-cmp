@@ -47,7 +47,7 @@ def create_layout():
                     html.Label("Choose file:", style={"fontWeight": "bold", "marginBottom": "4px", "paddingLeft": "5px"}),
                     dcc.Input(id="path-input", type="text", placeholder="Enter path...",
                               style={"padding": "8px", "borderRadius": "15px", "border": "1px solid #ddd"}),
-                    html.Label("Error - path not found", id="path-output", style={"paddingLeft": "5px", "paddingBottom": "15px", "color": "#a84632"}),
+                    html.Label("Error - path not found", id="path-output", style={"visibility": "hidden"}),
 
                     html.Label("Regex:", style={"fontWeight": "bold", "marginBottom": "4px", "paddingLeft": "5px"}),
                     dcc.Input(id="regex-input", type="text", placeholder="Enter regex...",
@@ -120,5 +120,29 @@ def create_layout():
                     ),
                 ]
             ),
+
+            # MODAL
+            html.Div(
+                id="modal-container",
+
+                style={
+                    "display": "none",
+                },
+                children=[
+                    html.Div(
+                        style={
+                            "backgroundColor": "white",
+                            "padding": "20px",
+                            "borderRadius": "10px",
+                            "width": "300px",
+                            "textAlign": "center",
+                        },
+                        children=[
+                            html.H4("Folder Found"),
+                            html.Button("Close", id="close-modal", style={"marginTop": "15px"})
+                        ]
+                    )
+                ]
+            )
         ],
     )

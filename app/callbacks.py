@@ -1,4 +1,6 @@
-from dash.dependencies import Input, Output
+import os
+
+from dash.dependencies import Input, Output, State
 import pandas as pd
 
 
@@ -29,3 +31,33 @@ def register_callbacks(app):
                 return f"Error: {str(e)}", f"Error: {str(e)}"
 
         return "", ""
+
+    @app.callback(
+        Output("modal-container", "style"),
+        Output("path-output", "style"),
+        Input("analyze-button", "n_clicks"),
+        State("path-input", "value"),
+        prevent_initial_call=True
+    )
+    def check_path(n_clicks: int, path: str):
+        if os.path.isdir(path):
+            return {
+                    "position": "fixed",
+                    "display": "flex",
+                    "top": "0",
+                    "left": "0",
+                    "width": "100vw",
+                    "height": "100vh",
+                    "backgroundColor": "rgba(0, 0, 0, 0.5)",
+                    "alignItems": "center",
+                    "justifyContent": "center",
+                }, {"display": "none"}
+        return {"display": "none"}, {"paddingLeft": "5px", "paddingBottom": "15px", "color": "#a84632"}
+
+    @app.callback(
+        Output("modal-container", "style", allow_duplicate=True),
+        Input("close-modal", "n_clicks"),
+        prevent_initial_call="initial_duplicate"
+    )
+    def close_modal(n_clicks: int):
+        return {"display": "none"}
