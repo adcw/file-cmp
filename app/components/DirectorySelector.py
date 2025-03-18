@@ -6,7 +6,7 @@ from dash_iconify import DashIconify
 
 
 def FileSelector():
-    return dmc.Fieldset(
+    return dmc.Stack(
         children=[
             dmc.TextInput(
                 id="path-input",
@@ -19,11 +19,13 @@ def FileSelector():
 
             dmc.Group(
                 mt="sm",
-                children=dmc.Button("Scan Directory"), justify="flex-end", grow=True),
+                children=[
+                    dmc.Button("Cancel", id="directory-modal-cancel-button", variant="outline", color="cyan"),
+                    dmc.Button("Scan Directory", id="directory-modal-submit-button", color="cyan"),
+                ], justify="flex-end", grow=True),
 
             dcc.Store(id="path-store", data={"path": None, "regex": None}),
-        ],
-        legend="Input files",
+        ]
     )
 
 
