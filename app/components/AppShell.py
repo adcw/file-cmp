@@ -1,7 +1,10 @@
 import dash_mantine_components as dmc
 import pandas as pd
-from dash import dcc, html, dash_table
+from dash import dcc, html, dash_table, callback, Output, Input, State
+from dash_iconify import DashIconify
 
+from app.components.DirectorySelector import FileSelector
+from app.components.DirectoryView import FileTree
 from app.components.FilePreviews import FilePreviews
 from app.utils import similarity_to_color
 
@@ -47,21 +50,35 @@ def AppShell():
             dmc.AppShellNavbar(
                 id="navbar",
                 children=[
-                    dmc.Fieldset(
+                    dmc.Button("Open directory", id="directory-modal-open"),
+                    dmc.Modal(
+                        title="Choose directory",
+                        id="directory-modal",
                         children=[
-                            dmc.TextInput(label="Directory path", placeholder="Enter path"),
-                            dmc.TextInput(label="Filename regex", placeholder=".txt"),
+                            dmc.Text("I am in a modal component."),
+                            dmc.Space(h=20),
                             dmc.Group(
-                                mt="sm",
-                                children=[dmc.Button("Scan Directory")], justify="flex-end", grow=True),
+                                [
+                                    dmc.Button("Submit", id="directory-modal-submit-button"),
+                                    dmc.Button(
+                                        "Cancel",
+                                        color="red",
+                                        variant="outline",
+                                        id="directory-modal-cancel-button",
+                                    ),
+                                ],
+                                justify="flex-end",
+                            ),
                         ],
-                        legend="Input files",
-                    )
+                    ),
+                    FileSelector(),
+                    dmc.ScrollArea(
+                        children=FileTree(r"C:\Users\adrian\Documents\URz\inne\file_cmp\data").render()
+                    ),
                 ],
                 p="md",
             ),
             dmc.AppShellMain(
-
                 dmc.Flex(
                     direction="column",
                     h="calc(100vh - 95px)",
@@ -95,3 +112,15 @@ def AppShell():
         },
         id="appshell",
     )
+
+
+@callback(
+    Output("directory-modal", "opened"),
+    Input("directory-modal-open", "n_clicks"),
+    Input("directory-modal-submit-button", "n_clicks"),
+    Input("directory-modal-cancel-button", "n_clicks"),
+    State("directory-modal", "opened"),
+    prevent_initial_call=True,
+)
+def modal(open_click, submit_click, cancel_click, opened):
+    return not opened
