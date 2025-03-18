@@ -33,6 +33,7 @@ style_conditions = [
     for sim in df["Similarity"]
 ]
 
+
 def AppShell():
     return dmc.AppShell(
         padding=0,
@@ -41,7 +42,7 @@ def AppShell():
                 dmc.Group(
                     [
                         dmc.Burger(id="burger", size="sm", hiddenFrom="sm", opened=False),
-                        dmc.Title("File Similarity Comparer", c="blue"),
+                        dmc.Title("File Similarity Comparer", c="cyan"),
                     ],
                     h="100%",
                     px="md",
@@ -50,28 +51,15 @@ def AppShell():
             dmc.AppShellNavbar(
                 id="navbar",
                 children=[
-                    dmc.Button("Open directory", id="directory-modal-open"),
+                    dmc.Button("Open directory", id="directory-modal-open", color="cyan", variant="light"),
                     dmc.Modal(
                         title="Choose directory",
                         id="directory-modal",
                         children=[
-                            dmc.Text("I am in a modal component."),
-                            dmc.Space(h=20),
-                            dmc.Group(
-                                [
-                                    dmc.Button("Submit", id="directory-modal-submit-button"),
-                                    dmc.Button(
-                                        "Cancel",
-                                        color="red",
-                                        variant="outline",
-                                        id="directory-modal-cancel-button",
-                                    ),
-                                ],
-                                justify="flex-end",
-                            ),
+                            FileSelector(),
                         ],
                     ),
-                    FileSelector(),
+
                     dmc.ScrollArea(
                         children=FileTree(r"C:\Users\adrian\Documents\URz\inne\file_cmp\data").render()
                     ),
@@ -122,5 +110,5 @@ def AppShell():
     State("directory-modal", "opened"),
     prevent_initial_call=True,
 )
-def modal(open_click, submit_click, cancel_click, opened):
+def handle_modal(open_click, submit_click, cancel_click, opened):
     return not opened
