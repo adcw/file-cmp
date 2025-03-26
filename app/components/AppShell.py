@@ -25,8 +25,6 @@ df = pd.DataFrame({
     "Similarity": [0.1, 0.3, 0.5, 0.9],
 }).sort_values("Similarity", ascending=False)
 
-
-
 theme_toggle = dmc.Switch(
     offLabel=DashIconify(icon="radix-icons:sun", width=15, color=dmc.DEFAULT_THEME["colors"]["yellow"][8]),
     onLabel=DashIconify(icon="radix-icons:moon", width=15, color=dmc.DEFAULT_THEME["colors"]["yellow"][6]),
@@ -54,7 +52,11 @@ def AppShell():
             dmc.AppShellNavbar(
                 id="navbar",
                 children=[
-                    dmc.Button("Open directory", id="directory-modal-open", color="cyan", variant="light"),
+                    dmc.Box(
+                        dmc.Button("Open directory", id="directory-modal-open", color="cyan", variant="light",
+                                   size="sm", w="100%"),
+                        w="100%",
+                    ),
                     dmc.Modal(
                         title="Choose directory",
                         id="directory-modal",
@@ -64,23 +66,25 @@ def AppShell():
                     ),
 
                     FileTree(r"C:\Users\adrian\Documents\URz\inne\file_cmp\data").render()
-
                 ],
                 p="md",
             ),
             dmc.AppShellMain(
-                dmc.Flex(
-                    direction="column",
-                    h="calc(100vh - 95px)",
-                    children=[
-                        html.Div(
-                            style={"margin": "10px"},
-                            children=ResultsTable(df)
-                        ),
+                [
+                    dcc.Store(id="filepaths", data=[]),
+                    dmc.Flex(
+                        direction="column",
+                        h="calc(100vh - 95px)",
+                        children=[
+                            html.Div(
+                                style={"margin": "10px"},
+                                children=ResultsTable(df)
+                            ),
 
-                        *FilePreviews()
-                    ]
-                )
+                            *FilePreviews()
+                        ]
+                    )
+                ]
             ),
         ],
         header={"height": 60},
@@ -115,3 +119,5 @@ clientside_callback(
 )
 def handle_modal(open_click, submit_click, cancel_click, opened):
     return not opened
+
+
