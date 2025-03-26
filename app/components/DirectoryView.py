@@ -13,17 +13,38 @@ class FileTree:
         """
         self.root_path = root_path
 
-    def render(self) -> dmc.Accordion:
+    def render(self) -> dmc.ScrollArea:
         """Generuje strukturę drzewa jako komponent Dash Mantine Accordion."""
-        return dmc.Accordion(
-            children=self._build_tree(self.root_path),
-            multiple=True,
-            chevronPosition="right",
-            variant="filled",
-            p=0,
+        return dmc.ScrollArea(
+            mih="100%",
+            children=[
+                dmc.Stack(
+                    pt="sm",
+                    gap="xs",
+                    children=[
+                        dmc.Text(f"File contents of\n{self.root_path}:", size="xs"),
+                        dmc.Accordion(
+                            children=self._build_tree(self.root_path),
+                            multiple=True,
+                            chevronPosition="right",
+                            variant="filled",
+                            styles={
+                                "label": {
+                                    "padding": "4px",
+                                },
+                                "content": {
+                                    "padding": "4px",
+                                    "paddingLeft": "12px",
+                                    "paddingRight": "0px",
+                                },
+                            },
+                        ),
+                    ]
+                )
+            ]
         )
 
-    def _build_tree(self, path: str):
+    def _build_tree(self, path: str, level: int = 1):
         """Rekurencyjnie buduje strukturę katalogową."""
         if not os.path.exists(path):
             return []
@@ -31,16 +52,29 @@ class FileTree:
         items = []
         if os.path.isdir(path):
             folder_name = os.path.basename(path)
-            children = [item for x in os.listdir(path) for item in self._build_tree(os.path.join(path, x))]
+            children = [item for x in os.listdir(path) for item in self._build_tree(os.path.join(path, x), level + 1)]
 
             items.append(
                 dmc.AccordionItem(
                     [
-                        self._make_folder_label(folder_name),
-                        dmc.AccordionPanel(dmc.Accordion(children=children, multiple=True, variant="filled", p=0)) if children else None
+                        self._make_folder_label(folder_name, is_empty=len(children) == 0),
+                        dmc.AccordionPanel(dmc.Accordion(
+                            styles={
+                                "label": {
+                                    "padding": "4px",
+                                },
+                                "content": {
+                                    "padding": "4px",
+                                    "paddingLeft": "12px",
+                                    "paddingRight": "0px",
+                                }
+                            },
+                            multiple=True,
+                            variant="filled",
+                            children=children,
+                        )) if children else None
                     ],
                     value=folder_name,
-                    p=0,
                 )
             )
         else:
@@ -48,32 +82,35 @@ class FileTree:
 
         return items
 
-    def _make_file_item(self, file_name: str) -> dmc.AccordionItem:
+    def _make_file_item(self, file_name: str, level: int = 1) -> dmc.AccordionItem:
         """Zwraca komponent pliku jako pojedynczy element Accordion."""
         return dmc.AccordionItem(
             [
                 dmc.Group(
+                    gap="xs",
+                    ml=level * 16,
+                    children=
                     [
-                        DashIconify(icon="akar-icons:file"),
+                        DashIconify(icon="akar-icons:file", width=12),
                         dmc.Text(file_name, size="xs")
                     ],
-                    gap="xs"
+
                 )
 
             ],
             value=file_name,
-            p=0,
+            p=4,
         )
 
-    def _make_folder_label(self, folder_name: str) -> dmc.AccordionControl:
+    def _make_folder_label(self, folder_name: str, is_empty: bool = False) -> dmc.AccordionControl:
         """Zwraca kontrolkę folderu z ikoną."""
+
         return dmc.AccordionControl(
             dmc.Group(
                 [
-                    DashIconify(icon="akar-icons:folder"),
+                    DashIconify(icon="akar-icons:folder", width=12),
                     dmc.Text(folder_name, size="xs")
                 ],
                 gap="xs"
             ),
-            p=0,
         )
