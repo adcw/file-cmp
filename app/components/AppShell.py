@@ -1,11 +1,12 @@
 import dash_mantine_components as dmc
 import pandas as pd
-from dash import dcc, html, dash_table, callback, Output, Input, State
+from dash import dcc, html, dash_table, callback, Output, Input, State, clientside_callback
 from dash_iconify import DashIconify
 
 from app.components.DirectorySelector import FileSelector
 from app.components.DirectoryView import FileTree
 from app.components.FilePreviews import FilePreviews
+from app.components.ReultsTable import ResultsTable
 from app.utils import similarity_to_color
 
 df = pd.DataFrame({
@@ -24,14 +25,15 @@ df = pd.DataFrame({
     "Similarity": [0.1, 0.3, 0.5, 0.9],
 }).sort_values("Similarity", ascending=False)
 
-style_conditions = [
-    {
-        "if": {"filter_query": f"{{Similarity}} = {sim}", "column_id": "Similarity"},
-        "backgroundColor": similarity_to_color(sim),
-        "color": "black",
-    }
-    for sim in df["Similarity"]
-]
+
+
+theme_toggle = dmc.Switch(
+    offLabel=DashIconify(icon="radix-icons:sun", width=15, color=dmc.DEFAULT_THEME["colors"]["yellow"][8]),
+    onLabel=DashIconify(icon="radix-icons:moon", width=15, color=dmc.DEFAULT_THEME["colors"]["yellow"][6]),
+    id="color-scheme-switch",
+    persistence=True,
+    color="grey",
+)
 
 
 def AppShell():
@@ -43,6 +45,7 @@ def AppShell():
                     [
                         dmc.Burger(id="burger", size="sm", hiddenFrom="sm", opened=False),
                         dmc.Title("File Similarity Comparer", c="cyan"),
+                        theme_toggle
                     ],
                     h="100%",
                     px="md",
@@ -60,9 +63,8 @@ def AppShell():
                         ],
                     ),
 
-                    dmc.ScrollArea(
-                        children=FileTree(r"C:\Users\adrian\Documents\URz\inne\file_cmp\data").render()
-                    ),
+                    FileTree(r"C:\Users\adrian\Documents\URz\inne\file_cmp\data").render()
+
                 ],
                 p="md",
             ),
@@ -73,18 +75,7 @@ def AppShell():
                     children=[
                         html.Div(
                             style={"margin": "10px"},
-                            children=dash_table.DataTable(
-                                id="file-table",
-                                data=df.to_dict("records"),
-                                columns=[{"name": col, "id": col} for col in df.columns],
-                                row_selectable="single",
-                                style_table={"overflowX": "auto", "flexGrow": "1"},
-                                page_size=10,
-                                filter_action="native",
-                                sort_action="native",
-                                sort_mode="multi",
-                                style_data_conditional=style_conditions,
-                            )
+                            children=ResultsTable(df)
                         ),
 
                         *FilePreviews()
@@ -100,6 +91,18 @@ def AppShell():
         },
         id="appshell",
     )
+
+
+clientside_callback(
+    """
+    (switchOn) => {
+       document.documentElement.setAttribute('data-mantine-color-scheme', switchOn ? 'dark' : 'light');
+       return window.dash_clientside.no_update
+    }
+    """,
+    Output("color-scheme-switch", "id"),
+    Input("color-scheme-switch", "checked"),
+)
 
 
 @callback(
